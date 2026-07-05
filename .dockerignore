@@ -1,0 +1,32 @@
+# 构建产物
+DocHub
+DocHub.exe
+*.exe
+
+# 数据与缓存
+mariadb-data/
+cache/
+logs/
+upload/
+runtime/
+*.log
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Docker
+Dockerfile
+docker-compose.yml
+docker-entrypoint.sh
+.dockerignore
+
+# 文档
+*.md
+LICENSE

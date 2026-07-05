@@ -1,0 +1,66 @@
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="panel panel-default wenku-wechat-pay-panel">
+                <div class="panel-heading clearfix">
+                    <div class="strong pull-left"><i class="fa fa-wechat"></i> 微信扫码支付</div>
+                </div>
+                <div class="panel-body text-center">
+
+                    {{if .CodeURL}}
+                    <div class="wenku-qrcode-box">
+                        <div id="qrcode"></div>
+                        <p class="help-block">请使用微信扫描上方二维码完成支付</p>
+                        <p>充值金额：<strong class="text-danger">{{printf "%.2f" .Order.Amount}} 元</strong> &nbsp;|&nbsp; 获得金币：<strong class="text-primary">{{.Order.Coin}} 个</strong></p>
+                        <p class="help-block">订单号：{{.Order.OrderNo}}</p>
+                        <p id="payStatusTip" class="text-muted"><i class="fa fa-spinner fa-spin"></i> 等待支付结果...</p>
+                    </div>
+                    {{else}}
+                    <div class="alert alert-danger">
+                        <i class="fa fa-exclamation-triangle"></i> 无法获取支付二维码。
+                        {{if not .WechatEnable}}微信支付未开启，请在 <code>conf/app.conf</code> 的 <code>[wechatpay]</code> 段配置商户信息。{{end}}
+                    </div>
+                    <a href="/pay/recharge" class="btn btn-default">返回重新充值</a>
+                    {{end}}
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.wenku-wechat-pay-panel{margin-top:20px;max-width:480px;margin-left:auto;margin-right:auto}
+.wenku-qrcode-box{padding:20px}
+#qrcode{display:inline-block;padding:15px;border:1px solid #eee;border-radius:6px;background:#fff}
+#qrcode img,#qrcode canvas{margin:0 auto}
+</style>
+
+<!-- QRCode 生成库 -->
+<script src="/static/Common/js/qrcode.min.js"></script>
+<script>
+$(function(){
+    var codeURL = "{{.CodeURL}}";
+    var orderNo = "{{.Order.OrderNo}}";
+    if(codeURL){
+        new QRCode(document.getElementById("qrcode"), {
+            text: codeURL,
+            width: 220,
+            height: 220,
+            colorDark : "#000000",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.M
+        });
+        //轮询订单状态
+        var timer = setInterval(function(){
+            $.get('/pay/order/status', {order: orderNo}, function(res){
+                if(res.status === 1 && res.data.status === 1){
+                    clearInterval(timer);
+                    $('#payStatusTip').html('<i class="fa fa-check-circle text-success"></i> 支付成功！正在跳转...').removeClass('text-muted').addClass('text-success');
+                    setTimeout(function(){ window.location.href = '/pay/result?order=' + orderNo; }, 1500);
+                }
+            });
+        }, 3000);
+    }
+});
+</script>

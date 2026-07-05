@@ -1,0 +1,96 @@
+# ============================================
+# DocHub 文库系统 Docker Compose 部署
+# 含支付宝 + 微信支付
+# ============================================
+version: "3.8"
+
+services:
+  # ---- MySQL 数据库 ----
+  mysql:
+    image: mysql:8.0
+    container_name: dochub-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-dochub123456}
+      MYSQL_DATABASE: ${DB_NAME:-dochub}
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
+    ports:
+      - "${DB_PORT:-3307}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --default-authentication-plugin=mysql_native_password
+      --max-connections=300
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD:-dochub123456}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - dochub-net
+
+  # ---- DocHub 文库应用 ----
+  dochub:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dochub-app
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-8090}:8090"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      # 数据库配置
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: ${DB_ROOT_PASSWORD:-dochub123456}
+      DB_NAME: ${DB_NAME:-dochub}
+      # 运行模式
+      RUNMODE: ${RUNMODE:-dev}
+      # 支付总开关（false = 测试模式，true = 真实支付）
+      PAY_ENABLE: ${PAY_ENABLE:-false}
+      PAY_COINRATE: ${PAY_COINRATE:-10}
+      PAY_SITEDOMAIN: ${PAY_SITEDOMAIN:-}
+      # 支付宝配置
+      ALIPAY_ENABLE: ${ALIPAY_ENABLE:-false}
+      ALIPAY_APPID: ${ALIPAY_APPID:-}
+      ALIPAY_PRIVATEKEY: ${ALIPAY_PRIVATEKEY:-}
+      ALIPAY_PUBLICKEY: ${ALIPAY_PUBLICKEY:-}
+      ALIPAY_GATEWAY: ${ALIPAY_GATEWAY:-https://openapi.alipay.com/gateway.do}
+      # 微信支付配置
+      WECHAT_ENABLE: ${WECHAT_ENABLE:-false}
+      WECHAT_APPID: ${WECHAT_APPID:-}
+      WECHAT_MCHID: ${WECHAT_MCHID:-}
+      WECHAT_APIKEY: ${WECHAT_APIKEY:-}
+      # 覆盖配置文件
+      OVERWRITE_CONFIG: "true"
+    volumes:
+      - dochub_cache:/app/cache
+      - dochub_logs:/app/logs
+      - dochub_upload:/app/upload
+      - dochub_runtime:/app/runtime
+    networks:
+      - dochub-net
+
+volumes:
+  mysql_data:
+    driver: local
+  dochub_cache:
+    driver: local
+  dochub_logs:
+    driver: local
+  dochub_upload:
+    driver: local
+  dochub_runtime:
+    driver: local
+
+networks:
+  dochub-net:
+    driver: bridge

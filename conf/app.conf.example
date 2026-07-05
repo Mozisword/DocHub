@@ -1,0 +1,116 @@
+
+# 项目名称
+appname = DocHub
+
+# 运行端口
+httpport = 8090
+
+# 运行模式：prod, dev【正式站点，务必设置为prod】
+runmode = dev
+
+# 开启GZip[建议开启]
+EnableGzip=true
+
+# 必须启用XSRF
+enablexsrf = true
+xsrfkey = 8fd70cd11c371951b1f385f452784fbb
+xsrfexpire = 3600
+
+# cookie的加密密钥
+CookieSecret=jLGy7yFD69dYItVJ
+
+# 静态文件扩展名【注意：不要把.conf设置为扩展名，以避免泄露数据库账号密码】
+StaticExt=.txt,.html,.ico,.jpeg,.png,.gif,.xml
+
+############ SESSION #############
+
+# 必须启用session，否则无法登录
+sessionon = true
+
+# 使用文件的形式存储session
+SessionProvider=file
+
+#Session存放位置
+SessionProviderConfig=cache/session
+
+# session的名称
+SessionName=dochub
+
+############ SESSION #############
+
+
+
+############ 数据库配置 start ############
+
+#数据库配置
+[db]
+
+# 数据库host（之前分内网host和外网host，当初只是为了开发方便。但是后来发现，用户在使用的时候会感觉很不方便，所以移除了内网和外网的区分）
+host=localhost
+
+#数据库端口
+port=3306
+
+# 数据库用户名
+user=root
+
+# 数据库密码
+password=
+
+# 使用的数据库的名称
+database=dochub
+
+# 表前缀
+prefix=hc_
+
+# 数据库字符编码
+charset=utf8
+
+#设置最大空闲连接
+maxIdle= 50
+
+#设置最大数据库连接
+maxConn= 300
+
+
+############ 数据库配置 end ############
+
+
+############ 支付配置 start ############
+
+# 支付总开关：false时充值功能走测试模式（模拟支付成功，不入真实支付）
+[pay]
+enable = false
+# 充值比例：1元兑换多少金币
+coinrate = 10
+# 站点域名（用于拼接支付异步通知URL，必须外网可访问，如 https://wenku.example.com）
+sitedomain =
+
+# 支付宝电脑网站支付配置
+# 获取方式：https://open.alipay.com -> 创建应用 -> 获取AppID、应用私钥、支付宝公钥
+[alipay]
+# 是否启用支付宝支付
+enable = false
+# 支付宝应用AppID
+appid =
+# 应用私钥（一长串Base64字符串，可不含PEM头尾）
+privatekey =
+# 支付宝公钥（一长串Base64字符串，可不含PEM头尾）
+publickey =
+# 支付宝网关（正式：https://openapi.alipay.com/gateway.do ；沙箱：https://openapi-sandbox.dl.alipaydev.com/gateway.do）
+gateway = https://openapi.alipay.com/gateway.do
+
+# 微信支付（Native扫码）配置
+# 获取方式：https://pay.weixin.qq.com -> 商户平台 -> 获取商户号、API密钥
+[wechatpay]
+# 是否启用微信支付
+enable = false
+# 微信AppID（公众号/小程序/移动应用）
+appid =
+# 微信商户号
+mchid =
+# API密钥（V2，32位，在商户平台设置）
+apikey =
+
+############ 支付配置 end ############
+

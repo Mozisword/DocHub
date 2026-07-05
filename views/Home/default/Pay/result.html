@@ -1,0 +1,58 @@
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="panel panel-default wenku-pay-result-panel">
+                <div class="panel-heading clearfix">
+                    <div class="strong pull-left"><i class="fa fa-check-circle-o"></i> 支付结果</div>
+                </div>
+                <div class="panel-body text-center">
+
+                    {{if eq .Order.Status 1}}
+                    <div class="wenku-result-icon text-success">
+                        <i class="fa fa-check-circle" style="font-size:72px"></i>
+                    </div>
+                    <h3 class="text-success">支付成功</h3>
+                    <p class="help-block">金币已充值到您的账户</p>
+                    {{else if eq .Order.Status 2}}
+                    <div class="wenku-result-icon text-danger">
+                        <i class="fa fa-times-circle" style="font-size:72px"></i>
+                    </div>
+                    <h3 class="text-danger">订单已关闭</h3>
+                    {{else}}
+                    <div class="wenku-result-icon text-muted">
+                        <i class="fa fa-clock-o" style="font-size:72px"></i>
+                    </div>
+                    <h3 class="text-muted">订单待支付</h3>
+                    <p class="help-block">如果您已完成支付，请稍候刷新页面查看结果</p>
+                    {{end}}
+
+                    <table class="table table-bordered wenku-result-table" style="max-width:420px;margin:20px auto">
+                        <tr><td class="text-right help-block">订单号</td><td class="text-left">{{.Order.OrderNo}}</td></tr>
+                        <tr><td class="text-right help-block">充值金额</td><td class="text-left text-danger">{{printf "%.2f" .Order.Amount}} 元</td></tr>
+                        <tr><td class="text-right help-block">获得金币</td><td class="text-left text-primary">{{.Order.Coin}} 个</td></tr>
+                        <tr><td class="text-right help-block">支付方式</td><td class="text-left">{{if eq .Order.PayType "alipay"}}支付宝{{else if eq .Order.PayType "wechat"}}微信支付{{else}}{{.Order.PayType}}{{end}}</td></tr>
+                        <tr><td class="text-right help-block">订单状态</td><td class="text-left">{{.StatusText}}</td></tr>
+                        <tr><td class="text-right help-block">当前金币</td><td class="text-left strong text-primary">{{.UserInfo.Coin}} 个</td></tr>
+                    </table>
+
+                    <div class="wenku-result-actions">
+                        {{if eq .Order.Status 1}}
+                        <a href="/user" class="btn btn-primary">查看我的金币</a>
+                        {{else if eq .Order.Status 0}}
+                        <a href="/pay/recharge" class="btn btn-primary">重新充值</a>
+                        {{end}}
+                        <a href="/" class="btn btn-default">返回首页</a>
+                        <button class="btn btn-default" onclick="location.reload()"><i class="fa fa-refresh"></i> 刷新</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.wenku-pay-result-panel{margin-top:20px;max-width:560px;margin-left:auto;margin-right:auto}
+.wenku-result-icon{margin:20px 0}
+.wenku-result-table{font-size:14px}
+</style>

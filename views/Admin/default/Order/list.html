@@ -1,0 +1,99 @@
+    <div class="row">
+        <h1 class="page-header">订单管理</h1>
+        <div class="panel panel-default">
+            <div class="panel-heading wenku-no-pdl clearfix">
+                <form class="form-horizontal" role="form" action="/admin/order" method="get">
+                    <div class="col-xs-3 col-sm-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">支付方式</span>
+                            <select class="form-control" name="paytype">
+                                <option value="">全部</option>
+                                <option value="alipay" {{if eq .PayType "alipay"}}selected{{end}}>支付宝</option>
+                                <option value="wechat" {{if eq .PayType "wechat"}}selected{{end}}>微信支付</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-3 col-sm-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">状态</span>
+                            <select class="form-control" name="status">
+                                <option value="">全部</option>
+                                <option value="0" {{if eq .Status "0"}}selected{{end}}>待支付</option>
+                                <option value="1" {{if eq .Status "1"}}selected{{end}}>已支付</option>
+                                <option value="2" {{if eq .Status "2"}}selected{{end}}>已关闭</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-4 col-sm-4">
+                        <div class="input-group">
+                            <span class="input-group-addon">关键字</span>
+                            <input type="text" class="form-control" name="keyword" value="{{.Keyword}}" placeholder="订单号或用户名">
+                        </div>
+                    </div>
+                    <div class="col-xs-2 col-sm-2">
+                        <button type="submit" class="btn btn-default">搜索</button>
+                    </div>
+                </form>
+            </div>
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered table-hover dataTable no-footer">
+                        <thead>
+                        <tr role="row">
+                            <th>ID</th>
+                            <th>订单号</th>
+                            <th>用户</th>
+                            <th>金额</th>
+                            <th>金币</th>
+                            <th>支付方式</th>
+                            <th>状态</th>
+                            <th>第三方流水号</th>
+                            <th>创建时间</th>
+                            <th>支付时间</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {{range .Orders}}
+                        <tr>
+                            <td>{{.Id}}</td>
+                            <td><a href="/pay/result?order={{.OrderNo}}" target="_blank">{{.OrderNo}}</a></td>
+                            <td>{{.Username}}</td>
+                            <td class="text-danger">{{.Amount}}</td>
+                            <td class="text-primary">{{.Coin}}</td>
+                            <td>
+                                {{if eq (.PayType|Interface2String) "alipay"}}支付宝
+                                {{else if eq (.PayType|Interface2String) "wechat"}}微信支付
+                                {{else}}{{.PayType}}{{end}}
+                            </td>
+                            <td>
+                                {{if eq (.Status|Interface2String) "1"}}
+                                <span class="label label-success">已支付</span>
+                                {{else if eq (.Status|Interface2String) "2"}}
+                                <span class="label label-default">已关闭</span>
+                                {{else}}
+                                <span class="label label-warning">待支付</span>
+                                {{end}}
+                            </td>
+                            <td>{{.TradeNo}}</td>
+                            <td>{{TimestampFormat (.TimeCreate|Interface2Int)}}</td>
+                            <td>{{if gt (.TimePay|Interface2Int) 0}}{{TimestampFormat (.TimePay|Interface2Int)}}{{else}}-{{end}}</td>
+                        </tr>
+                        {{end}}
+                        {{if not .Orders}}
+                        <tr><td colspan="10" class="text-center text-muted">暂无订单数据</td></tr>
+                        {{end}}
+                        </tbody>
+                    </table>
+                    {{if gt .TotalRows .ListRows}}
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <ul class="pagination">
+                                {{str2html .Page}}
+                            </ul>
+                        </div>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+    </div>

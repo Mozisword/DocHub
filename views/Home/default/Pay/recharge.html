@@ -1,0 +1,131 @@
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="panel panel-default wenku-recharge-panel">
+                <div class="panel-heading clearfix">
+                    <div class="strong pull-left"><i class="fa fa-diamond"></i> 充值金币</div>
+                    <div class="pull-right help-block">当前金币：<span class="text-primary strong">{{.UserInfo.Coin}}</span> 个</div>
+                </div>
+                <div class="panel-body">
+
+                    {{if .TestMode}}
+                    <div class="alert alert-warning">
+                        <i class="fa fa-info-circle"></i> 当前为<strong>测试模式</strong>（未配置真实支付凭证），充值将模拟支付成功并自动到账金币，方便验证流程。
+                        配置真实支付凭证后即可真实收款，详见 <code>conf/app.conf</code> 中 <code>[alipay]</code> 和 <code>[wechatpay]</code> 段。
+                    </div>
+                    {{end}}
+
+                    <div class="wenku-recharge-rate help-block">
+                        充值比例：<strong>1 元 = {{.CoinRate}} 金币</strong>
+                    </div>
+
+                    <form id="rechargeForm">
+                        <div class="form-group">
+                            <label class="control-label">选择充值金额</label>
+                            <div class="wenku-amount-list">
+                                <label class="wenku-amount-item"><input type="radio" name="amount" value="1" hidden>1元<span class="help-block">{{.CoinRate}}金币</span></label>
+                                <label class="wenku-amount-item"><input type="radio" name="amount" value="5" hidden>5元<span class="help-block">{{CalcInt .CoinRate "*" 5}}金币</span></label>
+                                <label class="wenku-amount-item"><input type="radio" name="amount" value="10" hidden checked>10元<span class="help-block">{{CalcInt .CoinRate "*" 10}}金币</span></label>
+                                <label class="wenku-amount-item"><input type="radio" name="amount" value="50" hidden>50元<span class="help-block">{{CalcInt .CoinRate "*" 50}}金币</span></label>
+                                <label class="wenku-amount-item"><input type="radio" name="amount" value="100" hidden>100元<span class="help-block">{{CalcInt .CoinRate "*" 100}}金币</span></label>
+                                <label class="wenku-amount-item wenku-amount-custom">
+                                    <input type="radio" name="amount" value="custom" hidden>
+                                    <span>自定义</span>
+                                    <input type="number" class="form-control input-sm" id="customAmount" placeholder="金额" min="0.01" step="0.01" style="width:80px;display:inline-block">
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label">选择支付方式</label>
+                            <div class="wenku-paytype-list">
+                                {{if or .AlipayEnable .TestMode}}
+                                <label class="wenku-paytype-item"><input type="radio" name="paytype" value="alipay" hidden checked><i class="fa fa-paypal"></i> 支付宝</label>
+                                {{end}}
+                                {{if or .WechatEnable .TestMode}}
+                                <label class="wenku-paytype-item"><input type="radio" name="paytype" value="wechat" hidden><i class="fa fa-wechat"></i> 微信支付</label>
+                                {{end}}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary btn-lg" id="btnRecharge"><i class="fa fa-credit-card"></i> 立即充值</button>
+                            <a href="/user" class="btn btn-default btn-lg">返回</a>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.wenku-recharge-panel{margin-top:20px}
+.wenku-amount-list .wenku-amount-item{display:inline-block;padding:15px 20px;margin:0 10px 10px 0;border:2px solid #eee;border-radius:6px;text-align:center;cursor:pointer;min-width:90px;transition:all .2s}
+.wenku-amount-list .wenku-amount-item:hover{border-color:#16a085}
+.wenku-amount-list .wenku-amount-item.active{border-color:#16a085;background:#ecf6f4}
+.wenku-amount-list .wenku-amount-item .help-block{margin:4px 0 0;font-size:12px}
+.wenku-paytype-list .wenku-paytype-item{display:inline-block;padding:12px 24px;margin:0 10px 10px 0;border:2px solid #eee;border-radius:6px;cursor:pointer;font-size:16px;transition:all .2s}
+.wenku-paytype-list .wenku-paytype-item:hover{border-color:#2980b9}
+.wenku-paytype-list .wenku-paytype-item.active{border-color:#2980b9;background:#eaf4fb}
+.wenku-paytype-list .wenku-paytype-item .fa-wechat{color:#07c160}
+.wenku-paytype-list .wenku-paytype-item .fa-paypal{color:#00a0e9}
+</style>
+
+<script>
+$(function(){
+    //金额选择
+    $('.wenku-amount-item').on('click', function(){
+        $('.wenku-amount-item').removeClass('active');
+        $(this).addClass('active');
+        $(this).find('input[type=radio]').prop('checked', true);
+    });
+    $('.wenku-amount-item input[type=radio]').on('click', function(e){ e.stopPropagation(); $(this).parent().click(); });
+    //默认选中
+    $('.wenku-amount-item input[checked]').parent().addClass('active');
+
+    //支付方式
+    $('.wenku-paytype-item').on('click', function(){
+        $('.wenku-paytype-item').removeClass('active');
+        $(this).addClass('active');
+        $(this).find('input[type=radio]').prop('checked', true);
+    });
+    $('.wenku-paytype-item input[type=radio]').on('click', function(e){ e.stopPropagation(); $(this).parent().click(); });
+    $('.wenku-paytype-item input[checked]').parent().addClass('active');
+
+    //提交
+    $('#rechargeForm').on('submit', function(e){
+        e.preventDefault();
+        var amount = $('input[name=amount]:checked').val();
+        if(amount === 'custom'){
+            amount = $('#customAmount').val();
+        }
+        if(!amount || parseFloat(amount) < 0.01){
+            $.toast({text:'请输入正确的充值金额', icon:'error'});
+            return;
+        }
+        var paytype = $('input[name=paytype]:checked').val();
+        if(!paytype){
+            $.toast({text:'请选择支付方式', icon:'error'});
+            return;
+        }
+        $('#btnRecharge').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> 处理中...');
+        $.post('/pay/order', {amount: amount, paytype: paytype}, function(res){
+            $('#btnRecharge').prop('disabled', false).html('<i class="fa fa-credit-card"></i> 立即充值');
+            if(res.status === 1){
+                if(res.data.pay_url){
+                    window.location.href = res.data.pay_url;
+                } else if(res.data.redirect){
+                    window.location.href = res.data.redirect;
+                }
+            } else {
+                $.toast({text: res.msg, icon:'error'});
+            }
+        }).fail(function(){
+            $('#btnRecharge').prop('disabled', false).html('<i class="fa fa-credit-card"></i> 立即充值');
+            $.toast({text:'网络错误，请重试', icon:'error'});
+        });
+    });
+});
+</script>

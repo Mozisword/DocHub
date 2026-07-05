@@ -73,7 +73,7 @@ func installSys() {
 5:人身攻击
 6:骚扰他人`, //举报原因
 		Watermark:        "DocHub", //文档水印
-		StoreType:        string(StoreOss),
+		StoreType:        string(StoreLocal),
 		CheckRegEmail:    true,
 		AllowRepeatedDoc: false,
 	}
@@ -1296,10 +1296,40 @@ func installCfg() {
 		},
 	}
 
+	// 本地存储
+	cateLocal := string(StoreLocal)
+	cfgLocal := []Config{
+		Config{
+			Title:       "公开访问域名",
+			Description: "本地存储的公开访问域名，如 http://localhost:8090/local",
+			Key:         "public-domain",
+			Value:       "/local",
+			InputType:   InputText,
+			Category:    cateLocal,
+		},
+		Config{
+			Title:       "私有访问域名",
+			Description: "本地存储的私有访问路径",
+			Key:         "private-domain",
+			Value:       "/local",
+			InputType:   InputText,
+			Category:    cateLocal,
+		},
+		Config{
+			Title:       "过期时间",
+			Description: "文档下载链接有效时长(秒)，本地存储不限制",
+			Key:         "expire",
+			Value:       "3600",
+			InputType:   InputNumber,
+			Category:    cateLocal,
+		},
+	}
+
 	configs = append(configs, cfgEmail...)
 	configs = append(configs, cfgLogs...)
 	configs = append(configs, cfgDepend...)
 	configs = append(configs, cfgES...)
+	configs = append(configs, cfgLocal...)
 	configs = append(configs, cfgOss...)
 	configs = append(configs, cfgBos...)
 	configs = append(configs, cfgCos...)

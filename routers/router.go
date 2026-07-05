@@ -23,6 +23,9 @@ func init() {
 
 //前台路由
 func front() {
+	// 本地存储文件访问路由
+	beego.SetStaticPath("/local", "uploads/local")
+
 	beego.Router("/", &HomeControllers.IndexController{})
 	beego.Router("/install", &HomeControllers.InstallController{}, "get,post:Install")
 	beego.Router("/list/:chanel", &HomeControllers.ListController{})

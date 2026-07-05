@@ -25,6 +25,7 @@ const (
 	ConfigCateLog           helper.ConfigCate = "logs"          //日志配置管理
 
 	// 存储类型, cs 前缀表示 CloudStore
+	StoreLocal helper.ConfigCate = "cs-local" //本地存储
 	StoreOss   helper.ConfigCate = "cs-oss"   //oss存储
 	StoreMinio helper.ConfigCate = "cs-minio" //minio存储
 	StoreCos   helper.ConfigCate = "cs-cos"   //腾讯云存储
@@ -63,6 +64,13 @@ type ConfigOss struct {
 	PrivateBucket       string `dochub:"private-bucket"`
 	PrivateBucketDomain string `dochub:"private-bucket-domain"`
 	Expire              int64  `dochub:"expire"`
+}
+
+// ConfigLocal 本地存储配置
+type ConfigLocal struct {
+	PublicDomain  string `dochub:"public-domain"`  //本地公开访问域名/路径
+	PrivateDomain string `dochub:"private-domain"` //本地私有访问域名/路径
+	Expire        int64  `dochub:"expire"`
 }
 
 type ConfigMinio struct {
@@ -165,6 +173,8 @@ func (this *Config) All() (configs []Config) {
 // 获取云存储配置
 func (this *Config) GetGlobalConfigWithStruct(configCate helper.ConfigCate) (cfg interface{}) {
 	switch configCate {
+	case StoreLocal:
+		cfg = &ConfigLocal{}
 	case StoreCos:
 		cfg = &ConfigCos{}
 	case StoreBos:
@@ -209,6 +219,8 @@ func (this *Config) GetGlobalConfigWithStruct(configCate helper.ConfigCate) (cfg
 
 func (this *Config) ParseForm(configCate helper.ConfigCate, form url.Values) (cfg interface{}, err error) {
 	switch configCate {
+	case StoreLocal:
+		cfg = &ConfigLocal{}
 	case StoreCos:
 		cfg = &ConfigCos{}
 	case StoreBos:

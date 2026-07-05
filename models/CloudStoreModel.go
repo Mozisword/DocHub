@@ -3,8 +3,10 @@ package models
 import (
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
@@ -41,6 +43,15 @@ func NewCloudStoreWithConfig(storeConfig interface{}, storeType helper.ConfigCat
 	}
 	cs.Private = private
 	switch cs.StoreType {
+	case StoreLocal:
+		cfg := cs.config.(*ConfigLocal)
+		cs.publicDomain = cfg.PublicDomain
+		cs.privateDomain = cfg.PrivateDomain
+		if cfg.Expire <= 0 {
+			cfg.Expire = 1800
+		}
+		cs.expire = cfg.Expire
+		cs.client = cfg // 本地存储直接用配置结构体作为 client
 	case StoreOss:
 		cfg := cs.config.(*ConfigOss)
 		bucket := cfg.PublicBucket
@@ -184,6 +195,8 @@ func NewCloudStoreWithConfig(storeConfig interface{}, storeType helper.ConfigCat
 
 func (c *CloudStore) Upload(tmpFile, saveFile string, headers ...map[string]string) (err error) {
 	switch c.StoreType {
+	case StoreLocal:
+		err = c.localUpload(tmpFile, saveFile)
 	case StoreCos:
 		err = c.client.(*CloudStore2.COS).Upload(tmpFile, saveFile, headers...)
 	case StoreOss:
@@ -204,6 +217,11 @@ func (c *CloudStore) Upload(tmpFile, saveFile string, headers ...map[string]stri
 
 func (c *CloudStore) Delete(objects ...string) (err error) {
 	switch c.StoreType {
+	case StoreLocal:
+		for _, obj := range objects {
+			path := c.localPath(obj)
+			os.Remove(path)
+		}
 	case StoreCos:
 		err = c.client.(*CloudStore2.COS).Delete(objects...)
 	case StoreOss:
@@ -225,6 +243,12 @@ func (c *CloudStore) Delete(objects ...string) (err error) {
 // err 返回 nil，表示文件存在，否则表示文件不存在
 func (c *CloudStore) IsExist(object string) (err error) {
 	switch c.StoreType {
+	case StoreLocal:
+		path := c.localPath(object)
+		if _, err = os.Stat(path); os.IsNotExist(err) {
+			return err
+		}
+		return nil
 	case StoreCos:
 		err = c.client.(*CloudStore2.COS).IsExist(object)
 	case StoreOss:
@@ -271,6 +295,8 @@ func (c *CloudStore) getImageFromCloudStore(picture string, ext ...string) (link
 func (c *CloudStore) GetSignURL(object string) (link string) {
 	var err error
 	switch c.StoreType {
+	case StoreLocal:
+		link = c.localURL(object)
 	case StoreCos:
 		link, err = c.client.(*CloudStore2.COS).GetSignURL(object, c.expire)
 	case StoreOss:
@@ -398,4 +424,63 @@ func (c *CloudStore) GetPublicDomain() (domain string) {
 	object := "test.dochub.test"
 	link := c.GetSignURL(object)
 	return strings.TrimRight(strings.Split(link, object)[0], "/")
+}
+
+// ===== 本地存储实现 =====
+
+// localDir 返回本地存储目录
+func (c *CloudStore) localDir() string {
+	dir := c.publicDomain
+	if c.Private {
+		dir = c.privateDomain
+	}
+	if dir == "" {
+		dir = "uploads/local"
+	}
+	return dir
+}
+
+// localPath 返回本地存储的文件路径
+func (c *CloudStore) localPath(object string) string {
+	return filepath.Join(c.localDir(), object)
+}
+
+// localURL 返回本地文件的访问URL
+func (c *CloudStore) localURL(object string) string {
+	domain := c.publicDomain
+	if c.Private {
+		domain = c.privateDomain
+	}
+	// 如果 domain 是 URL（http开头），直接拼接
+	if strings.HasPrefix(domain, "http") {
+		return strings.TrimRight(domain, "/") + "/" + object
+	}
+	// 否则使用 /local/ 路由来提供文件访问
+	return "/local/" + object
+}
+
+// localUpload 上传文件到本地存储
+func (c *CloudStore) localUpload(tmpFile, saveFile string) (err error) {
+	dir := c.localDir()
+	if err = os.MkdirAll(dir, os.ModePerm); err != nil {
+		return
+	}
+	dst := filepath.Join(dir, saveFile)
+	// 确保子目录存在
+	if err = os.MkdirAll(filepath.Dir(dst), os.ModePerm); err != nil {
+		return
+	}
+	// 复制文件
+	src, err := os.Open(tmpFile)
+	if err != nil {
+		return
+	}
+	defer src.Close()
+	dstFile, err := os.Create(dst)
+	if err != nil {
+		return
+	}
+	defer dstFile.Close()
+	_, err = io.Copy(dstFile, src)
+	return
 }

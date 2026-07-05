@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+ <head>
+<meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>会员登录 - DocHub(多哈)文库</title>
+    <meta name="keywords" content="会员登录"/>
+    <meta name="description" content="会员登录"/>
+    
+    <link rel="stylesheet" type="text/css" href="/static/Home/default/css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="/static/Home/default/css/flat-ui.min.css"/>
+    <link rel="stylesheet" type="text/css" href="/static/Home/default/css/font-awesome.min.css"/>
+    <link rel="stylesheet" type="text/css" href="/static/Common/css/jquery.toast.min.css"/>
+    <link rel="stylesheet" type="text/css" href="/static/Home/default/css/dochub.css?version=v2.4.1783231561"/>
+    
+    
+    <link rel="stylesheet" type="text/css" href="/static/Home/default/css/dochub-mobile.css?version=v2.4.1783231561"/>
+    
+    <link rel="shortcut icon" href="/static/Home/default/img/favicon.ico">
+      <script src="/static/Common/js/html5shiv.min.js"></script>
+      <script src="/static/Common/js/respond.min.js"></script>
+
+</head>
+  <body id="wenku-reg" class="">
+
+
+
+  	<div class="container-fluid wenku-header">
+  		<div class="container">
+			<div class="col-xs-6">
+				<a href="/" title="DocHub(多哈)文库">
+					<img alt="DocHub(多哈)文库" class="wenku-logo" src="/static/Home/default/img/logo.png"/>
+				</a>
+			</div>
+			<div class="col-xs-6">
+				<form class="pull-right" action="/search" target="_blank" method="get" role="search">
+					<div class="input-group input-group-lg">
+						<input type="text" required="required" name="wd" placeholder="请输入搜索关键字" class="form-control">
+						<span class="input-group-btn"><button type="submit" class="btn btn-default">文库搜索</button></span>
+					</div>
+				</form>
+			</div>
+	  	</div>
+  	</div>
+
+
+    <nav class="navbar navbar-default navbar-inverse visible-mobile" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse"
+                        data-target="#example-navbar-collapse">
+                    <span class="sr-only">切换导航</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                
+            </div>
+            <div class="collapse navbar-collapse" id="example-navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li ><a href="/">首页</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            频道 <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            
+                                <li ><a href="/list/edu">教育频道</a></li>
+                            
+                                <li ><a href="/list/pro">专业资料</a></li>
+                            
+                                <li ><a href="/list/pra">实用文档</a></li>
+                            
+                                <li ><a href="/list/exam">资格考试</a></li>
+                            
+                                <li ><a href="/list/life">生活休闲</a></li>
+                            
+                        </ul>
+                    </li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    
+                    <li class="active"><a href="/user"><span class="fa fa-user"></span> 会员中心</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+	<nav class="container-fluid navbar-inverse navbar navbar-default hidden-mobile" role="navigation">
+		<div class="container">
+			<ul class="nav navbar-nav">
+				<li ><a href="/">首页</a></li>
+				
+				<li ><a href="/list/edu">教育频道</a></li>
+				
+				<li ><a href="/list/pro">专业资料</a></li>
+				
+				<li ><a href="/list/pra">实用文档</a></li>
+				
+				<li ><a href="/list/exam">资格考试</a></li>
+				
+				<li ><a href="/list/life">生活休闲</a></li>
+				
+			</ul>
+			 <ul class="nav navbar-nav navbar-right">
+		      <li ><a href="/upload"><span class="fa fa-upload"></span> 上传文档</a></li>
+		      <li class="active"><a href="/user"><span class="fa fa-user"></span> 会员中心</a></li>
+		    </ul>
+		</div>
+	</nav>
+
+
+
+<div class="container">
+    <div class="row">
+        <div class="login">
+            <form action="/user/login" method="post" class="wenku-ajax-form" data-redirect="/user">
+                <div class="login-screen">
+                    <div class="login-form">
+                        <div class="form-header">
+                            会员登录
+                            <div class="help-block quick-login pull-right">
+                                <div class="pull-right">
+                                    <a href="#"><i class="iconfont icon-github"></i></a>
+                                    <a href="#"><i class="iconfont icon-weixin"></i></a>
+                                    <a href="#"><i class="iconfont icon-weibo"></i></a>
+                                    <a href="#"><i class="iconfont icon-QQ"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-box">
+                            <div class="form-group form-group-lg">
+                                <input type="email" autocomplete="no" name="Email" class="form-control login-field" required="required" value="" placeholder="请输入登录邮箱" id="login-name">
+                                <label class="login-field-icon fui-user" for="login-name"></label>
+                            </div>
+
+                            <div class="form-group form-group-lg">
+                                <input type="password" autocomplete="no" class="form-control login-field" name="Password" required="required"  value="" placeholder="请输入登录密码" id="login-pass">
+                                <label class="login-field-icon fui-lock" for="login-pass"></label>
+                            </div>
+                            <input type="hidden" name="_xsrf" value="1GwW8KmgyLQP7TA8JRW7Fa5nkncTnwyK" />
+                            <button type="submit" class="btn btn-primary btn-lg btn-block">马上登录</button>
+                        </div>
+                        <div class="form-footer">
+                            <div class="help-block">
+                                <a href="/user/findpwd">找回密码</a>
+                                <a class="pull-right" href="/user/reg">立即注册</a>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+	<div class="container-fluid wenku-footer">
+    	<div class="container">
+    		<div class="row wenku-flink">
+    			<div class="col-xs-12">
+    				<div><strong>友情链接</strong></div>
+    				<div class="help-block">
+						
+    					<a href="https://www.bookstack.cn" target="_blank" title="书栈网">书栈网</a>
+						
+    					<a href="https://www.myquant.cn" target="_blank" title="掘金量化">掘金量化</a>
+						
+    					<a href="http://www.gxyinli.com" target="_blank" title="南宁引力互动科技">南宁引力互动科技</a>
+						
+    					<a href="http://www.hc-cms.com" target="_blank" title="HC-CMS">HC-CMS</a>
+						
+    				</div>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+    <div class="container-fluid wenku-footer-dark">
+    	<div class="container">
+    		<div class="row">
+    			<div class="col-xs-12 text-center wenku-help help-block">
+					
+						<a href="/pages/about" target="_blank" title="关于我们">关于我们</a>
+					
+						<a href="/pages/agreement" target="_blank" title="关于我们">文库协议</a>
+					
+						<a href="/pages/feedback" target="_blank" title="意见反馈">意见反馈</a>
+					
+						<a href="/pages/response" target="_blank" title="免责声明">免责声明</a>
+					
+						<a href="/pages/contact" target="_blank" title="意见反馈">联系我们</a>
+					
+    			</div>
+    			<div class="col-xs-12 text-center help-block">
+					DocHub(多哈)文库&nbsp;&nbsp;&copy;2026&nbsp;&nbsp;<span class="text-muted">|</span>&nbsp;&nbsp;<a href="/sitemap.xml" title="站点地图" target="_blank">站点地图</a>
+    			</div>
+				
+    			<div class="col-xs-12 text-center help-block">
+					<small>Powered By <a href="https://github.com/TruthHun/DocHub" style="color: #1abc9c;" target="_blank" title="DocHub">DocHub</a> v2.4.1783231561</small>
+    			</div>
+
+				<div class="col-xs-12 text-center"></div>
+			</div>
+    	</div>
+    </div>
+
+
+	<script src="/static/Common/js/jquery.min.js"></script>
+    <script src="/static/Home/default/js/bootstrap.min.js"></script>
+	<script src="/static/Common/js/jquery.toast.min.js"></script>
+	
+    <script src="/static/Home/default/js/dochub.js?version=v2.4.1783231561"></script>
+      
+  </body>
+</html>

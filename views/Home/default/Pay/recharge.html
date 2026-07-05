@@ -20,6 +20,7 @@
                     </div>
 
                     <form id="rechargeForm">
+                        {{.xsrfdata}}
                         <div class="form-group">
                             <label class="control-label">选择充值金额</label>
                             <div class="wenku-amount-list">
@@ -75,6 +76,15 @@
 
 <script>
 $(function(){
+    // 全局 AJAX XSRF 设置
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (/^(POST|PUT|DELETE)$/i.test(settings.type)) {
+                var xsrf = $('input[name=_xsrf]').val();
+                if (xsrf) { xhr.setRequestHeader('X-Xsrftoken', xsrf); }
+            }
+        }
+    });
     //金额选择
     $('.wenku-amount-item').on('click', function(){
         $('.wenku-amount-item').removeClass('active');

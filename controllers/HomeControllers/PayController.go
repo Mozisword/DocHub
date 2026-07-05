@@ -15,11 +15,11 @@ type PayController struct {
 
 //充值页面
 func (this *PayController) Recharge() {
-	uid := this.CheckLogin()
-	if uid == 0 {
+	if this.IsLogin == 0 {
 		this.Redirect("/user/login", 302)
 		return
 	}
+	uid := this.IsLogin
 	this.Xsrf()
 	this.Data["IsRecharge"] = true
 	this.Data["Seo"] = models.NewSeo().GetByPage("PC-Recharge", "充值金币", "充值,金币", "充值金币", this.Sys.Site)
@@ -30,15 +30,15 @@ func (this *PayController) Recharge() {
 	this.Data["CoinRate"] = pay.GetConfig().CoinRate
 	this.Data["TestMode"] = pay.IsTestMode()
 	this.Data["PageId"] = "wenku-recharge"
-	this.TplName = "Pay/recharge.html"
+	this.TplName = "recharge.html"
 }
 
 //创建订单并跳转支付
 func (this *PayController) CreateOrder() {
-	uid := this.CheckLogin()
-	if uid == 0 {
+	if this.IsLogin == 0 {
 		this.ResponseJson(false, "请先登录")
 	}
+	uid := this.IsLogin
 	amount, _ := strconv.ParseFloat(this.GetString("amount"), 64)
 	payType := this.GetString("paytype")
 	if amount < 0.01 {
@@ -152,11 +152,11 @@ func (this *PayController) AlipayNotify() {
 
 //微信扫码支付页
 func (this *PayController) WechatQrcode() {
-	uid := this.CheckLogin()
-	if uid == 0 {
+	if this.IsLogin == 0 {
 		this.Redirect("/user/login", 302)
 		return
 	}
+	uid := this.IsLogin
 	orderNo := this.GetString("order")
 	order := models.NewOrder().GetByOrderNo(orderNo)
 	if order.Id == 0 || order.Uid != uid {
@@ -180,7 +180,7 @@ func (this *PayController) WechatQrcode() {
 	this.Data["WechatEnable"] = cfg.WechatEnable
 	this.Data["Seo"] = models.NewSeo().GetByPage("PC-Pay", "微信扫码支付", "微信支付", "微信扫码支付", this.Sys.Site)
 	this.Data["PageId"] = "wenku-wechat-pay"
-	this.TplName = "Pay/wechat_qrcode.html"
+	this.TplName = "wechat_qrcode.html"
 }
 
 //微信异步通知
@@ -220,11 +220,11 @@ func (this *PayController) OrderStatus() {
 
 //支付结果页
 func (this *PayController) Result() {
-	uid := this.CheckLogin()
-	if uid == 0 {
+	if this.IsLogin == 0 {
 		this.Redirect("/user/login", 302)
 		return
 	}
+	uid := this.IsLogin
 	orderNo := this.GetString("order")
 	order := models.NewOrder().GetByOrderNo(orderNo)
 	if order.Id == 0 {
@@ -241,5 +241,5 @@ func (this *PayController) Result() {
 	this.Data["StatusText"] = statusText
 	this.Data["Seo"] = models.NewSeo().GetByPage("PC-PayResult", "支付结果", "支付结果", "支付结果", this.Sys.Site)
 	this.Data["PageId"] = "wenku-pay-result"
-	this.TplName = "Pay/result.html"
+	this.TplName = "result.html"
 }

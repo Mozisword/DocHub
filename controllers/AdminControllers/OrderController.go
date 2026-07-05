@@ -80,5 +80,5 @@ func (this *OrderController) List() {
 	this.Data["TotalRows"] = total
 	this.Data["Page"] = helper.Paginations(6, int(total), listRows, p, "/admin/order/list/", "status", status, "paytype", payType, "keyword", keyword)
 	this.Data["Title"] = "订单管理"
-	this.TplName = "Order/list.html"
+	this.TplName = "list.html"
 }
